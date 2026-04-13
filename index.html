@@ -420,12 +420,25 @@
   <div class="wrapper">
     <section class="header">
       <div class="header-top">
-        <div class="brand">
-          <div class="logo">
-            <img src="logo.png" />
-          </div>
-          <div>
-            <h1>Sistema de Gestión de Calidad · Control de Ingreso a Planta</h1>
+        <div class="brand" style="flex-direction: column; align-items: center; text-align: center;">
+
+  <div class="logo" style="width:90px; height:90px;">
+    <img src="logo.png" />
+  </div>
+
+  <div>
+    <h1 style="margin-top:10px;">
+      Sistema de Gestión de Calidad · Control de Ingreso a Planta
+    </h1>
+
+    <p class="sub">
+      Validación visual de identidad y declaración sanitaria previa al ingreso.<br>
+      Ecocarnes S.A. · Argentina 1918 Insp
+    </p>
+  </div>
+
+</div>
+            
             <p class="sub">
               Plant Entry Control · Validación visual de identidad y declaración sanitaria previa al ingreso.
               Establecimiento: Ecocarnes S.A. · Argentina 1918 Insp
@@ -771,7 +784,7 @@
       }
 
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Guardando...';
+      saveBtn.textContent = 'Guardando...
 
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
