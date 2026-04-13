@@ -422,7 +422,7 @@
       <div class="header-top">
         <div class="brand">
           <div class="logo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Cow_icon.svg/1024px-Cow_icon.svg.png" alt="Ecocarnes" />
+            <img src="logo.png" />
           </div>
           <div>
             <h1>Sistema de Gestión de Calidad · Control de Ingreso a Planta</h1>
@@ -790,8 +790,15 @@
         successBox.innerHTML = `<strong>Ingreso registrado.</strong><br>Estado: ${data.estadoIngreso}.<br>Fila: ${result.row || '-'} · Archivo: ${result.fileName || '-'}`;
 
         form.reset();
-        setNowDefaults();
-        retakePhoto();
+setNowDefaults();
+retakePhoto();
+
+// limpiar mensajes
+alertBox.style.display = 'none';
+successBox.style.display = 'none';
+
+// resetear estado visual
+statusEl.textContent = 'Listo para nuevo ingreso.';
       } catch (error) {
         console.error(error);
         successBox.style.display = 'block';
