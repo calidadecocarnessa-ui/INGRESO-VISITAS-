@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingreso a planta - Validación visual</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #5b6475;
+      --line: #1fa36b;
+      --line-soft: rgba(31, 163, 107, 0.18);
+      --border: #d9e1ee;
+      --danger: #cc3344;
+      --danger-bg: #fff1f3;
+      --ok: #1fa36b;
+      --ok-bg: #eefaf4;
+      --shadow: 0 12px 32px rgba(18, 32, 63, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .logojpg {
+      width: 62px;
+      height: 62px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fff;
+      padding: 0;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      gap: 10px;
+      width: min(100%, 420px);
+    }
+
+    .meta-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fafcff;
+      font-size: 13px;
+    }
+
+    .meta-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .panel p.lead {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .scanner {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #0b0f16;
+      border: 1px solid #152033;
+    }
+
+    video, canvas, .photo-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    canvas, .photo-preview { display: none; }
+
+    .oval {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 44%;
+      height: 58%;
+      transform: translate(-50%, -50%);
+      border: 4px solid var(--line);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.34),
+        0 0 26px rgba(31, 163, 107, 0.34),
+        inset 0 0 18px rgba(31, 163, 107, 0.16);
+      pointer-events: none;
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      height: 3px;
+      top: 20%;
+      background: linear-gradient(90deg, transparent, #a7f3d0, transparent);
+      box-shadow: 0 0 18px rgba(31, 163, 107, 0.95);
+      animation: scan 2.2s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      from { top: 18%; }
+      to { top: 80%; }
+    }
+
+    .scanner-badges {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      pointer-events: none;
+    }
+
+    .badge {
+      background: rgba(7, 12, 22, 0.62);
+      border: 1px solid rgba(167, 243, 208, 0.26);
+      color: #dbfff0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .scanner-actions, .form-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .btn-primary { background: var(--ok); color: #fff; }
+    .btn-secondary { background: #eef2f7; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+
+    .status {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f7f9fc;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .photo-meta {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .photo-meta div {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fafcff;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .question {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .question-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .option-pill {
+      position: relative;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .option-pill input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .option-pill span {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .option-pill input:checked + span.ok {
+      background: var(--ok-bg);
+      border-color: rgba(31, 163, 107, 0.45);
+      color: var(--ok);
+    }
+
+    .option-pill input:checked + span.bad {
+      background: var(--danger-bg);
+      border-color: rgba(204, 51, 68, 0.4);
+      color: var(--danger);
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fbfcfe;
+    }
+
+    .policy-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfcfe;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .alert-box, .success-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .alert-box {
+      background: var(--danger-bg);
+      border: 1px solid rgba(204, 51, 68, 0.25);
+      color: #8a2030;
+    }
+
+    .success-box {
+      background: var(--ok-bg);
+      border: 1px solid rgba(31, 163, 107, 0.25);
+      color: #166444;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .meta { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <section class="header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Cow_icon.svg/1024px-Cow_icon.svg.png" alt="Ecocarnes" />
+          </div>
+          <div>
+            <h1>Sistema de Gestión de Calidad · Control de Ingreso a Planta</h1>
+            <p class="sub">
+              Plant Entry Control · Validación visual de identidad y declaración sanitaria previa al ingreso.
+              Establecimiento: Ecocarnes S.A. · Argentina 1918 Insp
+            </p>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-card">Código<strong>RG-ING-001</strong></div>
+          <div class="meta-card">Revisión<strong>1</strong></div>
+          <div class="meta-card">Estado<strong>Vigente</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>Validación visual</h2>
+        <p class="lead">
+          Posicione el rostro dentro del óvalo y capture una selfie para adjuntar automáticamente al registro de ingreso.
+          Esta función simula un escaneo facial con fines de identificación visual.
+        </p>
+
+        <div class="scanner">
+          <video id="video" autoplay playsinline muted></video>
+          <canvas id="canvas"></canvas>
+          <img id="photoPreview" class="photo-preview" alt="Selfie capturada" />
+
+          <div class="scanner-badges">
+            <div class="badge">IDENTIDAD · VALIDACIÓN VISUAL</div>
+            <div class="badge" id="clock">--:--:--</div>
+          </div>
+
+          <div class="oval"></div>
+          <div class="scan-line"></div>
+        </div>
+
+        <div class="scanner-actions">
+          <button type="button" class="btn-secondary" id="startBtn">Activar cámara</button>
+          <button type="button" class="btn-primary" id="captureBtn" disabled>Capturar selfie</button>
+          <button type="button" class="btn-secondary" id="retakeBtn" disabled>Volver a tomar</button>
+          <button type="button" class="btn-danger" id="stopBtn" disabled>Detener cámara</button>
+        </div>
+
+        <div class="status" id="status">
+          Esperando activación de cámara.
+        </div>
+
+        <div class="photo-meta">
+          <div><strong>Fecha:</strong> <span id="metaDate">-</span></div>
+          <div><strong>Hora:</strong> <span id="metaTime">-</span></div>
+          <div><strong>Archivo:</strong> <span id="metaFile">-</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Registro de ingreso</h2>
+        <p class="lead">
+          Complete la identificación, datos del vehículo y control sanitario. Al guardar, la información y la selfie se envían a la empresa.
+        </p>
+
+        <form id="entryForm">
+          <div class="section-title">Datos generales</div>
+          <div class="grid-3">
+            <div>
+              <label for="fecha">Fecha</label>
+              <input id="fecha" name="fecha" type="date" required />
+            </div>
+            <div>
+              <label for="hora">Hora</label>
+              <input id="hora" name="hora" type="time" required />
+            </div>
+            <div>
+              <label for="tipoIngreso">Tipo de ingreso</label>
+              <select id="tipoIngreso" name="tipoIngreso" required>
+                <option value="">Seleccionar</option>
+                <option>Visitante</option>
+                <option>Proveedor</option>
+                <option>Técnico</option>
+                <option>Auditor</option>
+                <option>Chofer</option>
+                <option>Contratista</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-title">Identificación</div>
+          <div class="grid-2">
+            <div>
+              <label for="nombre">Nombre y apellido</label>
+              <input id="nombre" name="nombre" type="text" required />
+            </div>
+            <div>
+              <label for="dni">DNI / Documento</label>
+              <input id="dni" name="dni" type="text" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="empresa">Empresa</label>
+              <input id="empresa" name="empresa" type="text" required />
+            </div>
+            <div>
+              <label for="visita">Persona / sector a visitar</label>
+              <input id="visita" name="visita" type="text" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="patente">Patente</label>
+              <input id="patente" name="patente" type="text" />
+            </div>
+            <div>
+              <label for="telefono">Teléfono</label>
+              <input id="telefono" name="telefono" type="text" />
+            </div>
+          </div>
+
+          <div>
+            <label for="observaciones">Observaciones</label>
+            <textarea id="observaciones" name="observaciones" placeholder="Detalle adicional si corresponde"></textarea>
+          </div>
+
+          <div class="section-title">Declaración jurada de salud</div>
+
+          <div class="question">
+            <div class="question-title">1. ¿Presenta síntomas compatibles con enfermedad infectocontagiosa?</div>
+            <div class="radio-row">
+              <label class="option-pill"><input type="radio" name="q1" value="NO" required /><span class="ok">🟢 NO</span></label>
+              <label class="option-pill"><input type="radio" name="q1" value="SI" required /><span class="bad">🔴 SI</span></label>
+            </div>
+          </div>
+
+          <div class="question">
+            <div class="question-title">2. ¿Ha tenido fiebre en las últimas 48 horas?</div>
+            <div class="radio-row">
+              <label class="option-pill"><input type="radio" name="q2" value="NO" required /><span class="ok">🟢 NO</span></label>
+              <label class="option-pill"><input type="radio" name="q2" value="SI" required /><span class="bad">🔴 SI</span></label>
+            </div>
+          </div>
+
+          <div class="question">
+            <div class="question-title">3. ¿Presenta vómitos o diarrea?</div>
+            <div class="radio-row">
+              <label class="option-pill"><input type="radio" name="q3" value="NO" required /><span class="ok">🟢 NO</span></label>
+              <label class="option-pill"><input type="radio" name="q3" value="SI" required /><span class="bad">🔴 SI</span></label>
+            </div>
+          </div>
+
+          <div class="question">
+            <div class="question-title">4. ¿Posee heridas expuestas sin cubrir?</div>
+            <div class="radio-row">
+              <label class="option-pill"><input type="radio" name="q4" value="NO" required /><span class="ok">🟢 NO</span></label>
+              <label class="option-pill"><input type="radio" name="q4" value="SI" required /><span class="bad">🔴 SI</span></label>
+            </div>
+          </div>
+
+          <div class="section-title">Política de ingreso a planta</div>
+
+          <div class="policy-box">
+            El ingreso a planta se encuentra sujeto al cumplimiento de las normas de higiene, seguridad y sanidad vigentes.
+            No se permitirá el acceso a personas que presenten síntomas compatibles con enfermedades infectocontagiosas.
+            Toda persona que ingrese deberá cumplir con las indicaciones del personal de calidad y utilizar los elementos de
+            protección personal requeridos.
+          </div>
+
+          <div class="checkbox-row">
+            <input id="politica" name="politica" type="checkbox" required style="width:auto; margin-top: 2px;" />
+            <label for="politica" style="margin:0; font-weight:400;">
+              Acepto las condiciones de ingreso a planta y me comprometo a cumplir las normas establecidas.
+            </label>
+          </div>
+
+          <div class="checkbox-row">
+            <input id="declaracion" name="declaracion" type="checkbox" required style="width:auto; margin-top: 2px;" />
+            <label for="declaracion" style="margin:0; font-weight:400;">
+              Declaro que la información consignada es verídica y autorizo el registro de imagen para control de ingreso.
+            </label>
+          </div>
+
+          <div class="alert-box" id="alertBox">
+            <strong>⚠ Ingreso no autorizado.</strong><br />
+            Se detectó una condición sanitaria no apta para el ingreso a planta. Dar aviso inmediato al responsable de Calidad.
+          </div>
+
+          <div class="success-box" id="successBox"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="saveBtn">Registrar ingreso</button>
+            <button type="button" class="btn-secondary" id="clearBtn">Limpiar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9nZj05juRjX_9ALA-wqN1U2JE-3-qtnDP4d6c7Fmwf56VuwhWl3xMfSPlkDH5tlsISw/exec";
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoPreview = document.getElementById('photoPreview');
+    const statusEl = document.getElementById('status');
+    const clockEl = document.getElementById('clock');
+    const metaDate = document.getElementById('metaDate');
+    const metaTime = document.getElementById('metaTime');
+    const metaFile = document.getElementById('metaFile');
+    const alertBox = document.getElementById('alertBox');
+    const successBox = document.getElementById('successBox');
+
+    const startBtn = document.getElementById('startBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const form = document.getElementById('entryForm');
+
+    let stream = null;
+    let photoData = '';
+    let photoFilename = '';
+
+    function updateClock() {
+      const now = new Date();
+      clockEl.textContent = now.toLocaleTimeString('es-AR');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function setNowDefaults() {
+      const now = new Date();
+      const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      const dateIso = localDate.toISOString().split('T')[0];
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('fecha').value = dateIso;
+      document.getElementById('hora').value = `${hh}:${mm}`;
+    }
+    setNowDefaults();
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1080 }, height: { ideal: 1350 } },
+          audio: false
+        });
+        video.srcObject = stream;
+        await video.play();
+        statusEl.textContent = 'Cámara activada. Posicione el rostro dentro del óvalo y presione “Capturar selfie”.';
+        startBtn.disabled = true;
+        captureBtn.disabled = false;
+        stopBtn.disabled = false;
+        retakeBtn.disabled = true;
+        photoPreview.style.display = 'none';
+        video.style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'No se pudo acceder a la cámara. Revisá los permisos del navegador y probá en Chrome o Edge.';
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+      startBtn.disabled = false;
+      captureBtn.disabled = true;
+      stopBtn.disabled = true;
+      statusEl.textContent = 'Cámara detenida.';
+    }
+
+    function capturePhoto() {
+      if (!video.videoWidth || !video.videoHeight) {
+        statusEl.textContent = 'La cámara todavía no está lista.';
+        return;
+      }
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      photoData = canvas.toDataURL('image/jpeg', 0.92);
+      photoPreview.src = photoData;
+      photoPreview.style.display = 'block';
+      video.style.display = 'none';
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-AR');
+      const timeStr = now.toLocaleTimeString('es-AR');
+      const fileStamp = `${dateStr.replace(/\//g, '-')}_${timeStr.replace(/:/g, '-')}`;
+      photoFilename = `ingreso_selfie_${fileStamp}.jpg`;
+
+      metaDate.textContent = dateStr;
+      metaTime.textContent = timeStr;
+      metaFile.textContent = photoFilename;
+
+      statusEl.textContent = 'Selfie capturada correctamente. Ahora ya podés registrar el ingreso.';
+      captureBtn.disabled = true;
+      retakeBtn.disabled = false;
+    }
+
+    function retakePhoto() {
+      photoData = '';
+      photoFilename = '';
+      photoPreview.style.display = 'none';
+      video.style.display = 'block';
+      metaDate.textContent = '-';
+      metaTime.textContent = '-';
+      metaFile.textContent = '-';
+      statusEl.textContent = 'Listo para volver a capturar la selfie.';
+      if (stream) {
+        captureBtn.disabled = false;
+        retakeBtn.disabled = true;
+      }
+    }
+
+    function hasSanitaryBlock(data) {
+      return ['q1', 'q2', 'q3', 'q4'].some(key => data[key] === 'SI');
+    }
+
+    async function submitForm(event) {
+      event.preventDefault();
+      alertBox.style.display = 'none';
+      successBox.style.display = 'none';
+
+      if (!photoData) {
+        statusEl.textContent = 'Primero capturá la selfie antes de registrar el ingreso.';
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.photoBase64 = photoData;
+      data.photoFilename = photoFilename;
+      data.timestamp = new Date().toISOString();
+      data.estadoIngreso = hasSanitaryBlock(data) ? 'NO AUTORIZADO' : 'AUTORIZADO';
+
+      if (data.estadoIngreso === 'NO AUTORIZADO') {
+        alertBox.style.display = 'block';
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Guardando...';
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || 'No se pudo registrar el ingreso.');
+        }
+
+        successBox.style.display = 'block';
+        successBox.innerHTML = `<strong>Ingreso registrado.</strong><br>Estado: ${data.estadoIngreso}.<br>Fila: ${result.row || '-'} · Archivo: ${result.fileName || '-'}`;
+
+        form.reset();
+        setNowDefaults();
+        retakePhoto();
+      } catch (error) {
+        console.error(error);
+        successBox.style.display = 'block';
+        successBox.innerHTML = `<strong>Error al guardar.</strong><br>${error.message}`;
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Registrar ingreso';
+      }
+    }
+
+    function clearAll() {
+      form.reset();
+      setNowDefaults();
+      alertBox.style.display = 'none';
+      successBox.style.display = 'none';
+      retakePhoto();
+    }
+
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+    captureBtn.addEventListener('click', capturePhoto);
+    retakeBtn.addEventListener('click', retakePhoto);
+    clearBtn.addEventListener('click', clearAll);
+    form.addEventListener('submit', submitForm);
+
+    window.addEventListener('beforeunload', () => {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+    });
+  </script>
+</body>
+</html>
+
+
